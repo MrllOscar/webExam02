@@ -46,12 +46,13 @@
   <?php } ?>
 
 </table>
+<!-- 位置要改 -->
 <?php
-  ($now-1>0)?printf('<a href="?do=news&p=%s"><</a>',$now-1):'';
+  ($now-1>0)?printf('<a href="?do=pop&p=%s"><</a>',$now-1):'';
   for($i=1;$i<= $page;$i++){
-    printf('<a href="?do=news&p=%s" style="font-size:%s">%s</a>',$i,($now==$i)?'32px':'16px',$i);
+    printf('<a href="?do=pop&p=%s" style="font-size:%s">%s</a>',$i,($now==$i)?'32px':'16px',$i);
   }
-  ($now+1<= $page)?printf('<a href="?do=news&p=%s">></a>',$now+1):'';
+  ($now+1<= $page)?printf('<a href="?do=pop&p=%s">></a>',$now+1):'';
 ?>
 
 <script>

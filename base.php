@@ -101,6 +101,17 @@ class DB{
     return $this->pdo->query($sql)->fetchColumn();
   }
 
+  function math($math,$col,...$array){
+    $sql="select $math(`$col`) from $this->table";
+
+    if(!empty($array)){
+        foreach($array[0] as $key => $value){
+            $tmp[]=sprintf("`%s`='%s'",$key,$value);
+        }
+            $sql=$sql . " where " . implode(" && ",$tmp);
+    }
+    return $this->pdo->query($sql)->fetchColumn();
+}
 
 }
 $Admin=new DB('admin');
@@ -109,9 +120,10 @@ $Text=new DB('text');
 $Que=new DB('que');
 $Vote=new DB('vote');
 // 如果找不到今天，存入今天total
-if($Total->count(['date'=>date("Y-m-d")])<=0){
-  $Total->save(['date'=>date("Y-m-d"),'total'=>1]);
+if (!$Total->count(['date' => date("Y-m-d")])) {
+  $Total->save(['date' => date("Y-m-d"), 'total' => 0]);
 }
+
 
 //如果沒有SESSION，找到今天的日期，將total+1存回去，建立session
 if(!isset($_SESSION['total'])){
