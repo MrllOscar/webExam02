@@ -1,0 +1,10 @@
+<?php include_once '../base.php';
+// var_dump($_POST);
+  $rows=$Vote->find(['id'=>$_POST['id']]);
+  $rows['good']++;
+  $Vote->save(['id'=>$_POST['id'],'good'=>$rows['good']]);
+  $title=$Vote->find(['id'=>$rows['parent']]);
+  $title['good']++;
+  $Vote->save(['id'=>$rows['parent'],'good'=>$title['good']]);
+  // echo $sql;
+  to('/index.php?do=que');

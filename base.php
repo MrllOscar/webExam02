@@ -1,138 +1,148 @@
 <?php
-  session_start();
-  date_default_timezone_set("Asia/Taipei");
+session_start();
+date_default_timezone_set('Asia/Taipei');
 
-class DB{
-  private $dsn="mysql:host=localhost;charset=utf8;dbname=db02",
-    $name="root",
-    $password="",
-    $table,
-    $pdo;
+class DB
+{
+  private $dns = "mysql:host=localhost;charset=utf8;dbname=db02",
+    $root = "root",
+    $pw = "",
+    $pdo,
+    $table;
 
-  function __construct($table){
-    $this->table=$table;
-    $this->pdo=new PDO($this->dsn,$this->name,$this->password);
+  function __construct($table)
+  {
+    $this->pdo = new PDO($this->dns, $this->root, $this->pw);
+    $this->table = $table;
   }
 
-  function all(...$arg){
-    $sql="select * from $this->table " ;
-
-    if(isset($arg[0])){
-      if(is_array($arg[0])){
-        foreach($arg[0] as $key=>$val){
-          $tmp[]=sprintf("`%s`='%s'",$key,$val);
-        }
-        $sql=$sql . " where " . implode(" && ",$tmp);
-      }else{
-        $sql=$sql . $arg[0];
+  function all(...$arg)
+  {
+    $sql = "SELECT * FROM $this->table ";
+    if (isset($arg[0])) {
+      if (is_array($arg[0])) {
+        foreach ($arg[0] as $k => $v)
+          $tmp[] = sprintf("`%s` = '%s'", $k, $v);
+        /***/
+        // $tmp[]= " where " . implode(" = ",$k,$v) ;
+        // $sql = $sql . $tmp ;
+        $sql = $sql . " where " . implode(" && ", $tmp);
+        /***/
+      } else {
+        $sql = $sql . $arg[0];
       }
-      if(isset($arg[1])){
-        $sql=$sql . $arg[1];
-      }
+    }
+    if (isset($arg[1])) {
+      $sql = $sql . $arg[1];
     }
     return $this->pdo->query($sql)->fetchAll();
   }
 
-  function count(...$arg){
-    $sql="select count(*) from $this->table " ;
-    if(isset($arg[0])){
-      if(is_array($arg[0])){
-        foreach($arg[0] as $key=>$val){
-          $tmp[]=sprintf("`%s`='%s'",$key,$val);
+  function count(...$arg)
+  {
+    $sql = "SELECT count(*) FROM $this->table ";
+    if (isset($arg[0])) {
+      if (is_array($arg[0])) {
+        foreach ($arg[0] as $k => $v) {
+          $tmp[] = sprintf("`%s` = '%s'", $k, $v);
         }
-        $sql=$sql . " where " . implode(" && ",$tmp);
-      }else{
-        $sql=$sql . $arg[0];
+        $sql = $sql . " where " . implode(" && ", $tmp);
+        //   foreach($arg[0] as $k => $v)
+        // $tmp[]= " where " . implode(" = ",$k,$v) ;
+        // $sql = $sql . $tmp ;
+      } else {
+        $sql = $sql . $arg[0];
       }
-      if(isset($arg[1])){
-        $sql=$sql . $arg[1];
-      }
+    }
+    if (isset($arg[1])) {
+      $sql = $sql . $arg[1];
     }
     return $this->pdo->query($sql)->fetchColumn();
   }
-  function find($id){
-    $sql="select * from $this->table " ;
-      if(is_array($id)){
-        foreach($id as $key=>$val){
-          $tmp[]=sprintf("`%s`='%s'",$key,$val);
-        }
-        $sql=$sql . " where " . implode(" && ",$tmp);
-      }else{
-        $sql=$sql . "where `id`='$id'";
-      }
-    
+
+  function find($id)
+  {
+    $sql = "SELECT * FROM $this->table ";
+    if (is_array($id)) {
+      foreach ($id as $k => $v)
+        $tmp[] = sprintf("`%s` = '%s'", $k, $v);
+      $sql = $sql . " where " . implode(" && ", $tmp);
+    } else {
+      $sql = $sql . " where `id` = '$id'";
+      // $sql = $sql . $id;
+    }
     return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
   }
-  function del($id){
-    $sql="delete from $this->table " ;
-      if(is_array($id)){
-        foreach($id as $key=>$val){
-          $tmp[]=sprintf("`%s`='%s'",$key,$val);
-        }
-        $sql=$sql . " where " . implode(" && ",$tmp);
-      }else{
-        $sql=$sql . " where `id`='$id' ";
+
+  function del($id)
+  {
+    $sql = "DELETE FROM $this->table ";
+    if (is_array($id)) {
+      foreach ($id as $k => $v) {
+        $tmp[] = sprintf("`%s` = '%s'", $k, $v);
       }
-    
-    return $this->pdo->exec($sql);
-  }
-  function save($array){
-    if(isset($array['id'])){
-      foreach($array as $key=>$val){
-        if($key!='id'){
-        $tmp[]=sprintf("`%s`='%s'",$key,$val);
-      }
+      $sql = $sql . " where " . implode(" && ", $tmp);
+    } else {
+      $sql = $sql . " where `id` = '$id'";
     }
-      $sql="update $this->table set ".implode(',',$tmp)." where `id`='{$array['id']}'";
-    }else{
-        $sql="insert into $this->table 
-        (`".implode("`,`",array_keys($array))."`) values 
-        ('".implode("','",array_values($array))."') 
-        ";
-      }
-    
+    // echo $sql;
     return $this->pdo->exec($sql);
   }
 
-  function sum($col){
+  function save($array)
+  {
+    if (isset($array['id'])) {
+      // if(in_array('id',$array)){
+      foreach ($array as $k => $v) {
+        if ($k != 'id') {
+          /***/
+          $tmp[] = sprintf("`%s` = '%s'", $k, $v);
+        }
+        // $sql = "UPDATE SET $this->table ";
+        // $tmp[]= " where " . implode(" = ",$k,$v) ;
+        // $sql = $sql . $tmp;
+      }
+      $sql = "UPDATE $this->table SET " . implode(',', $tmp) . " where `id`='{$array['id']}'";
+    } else {
+      $sql = "INSERT INTO $this->table 
+      (`" . implode("`,`", array_keys($array)) . "`) values 
+      ('" . implode("','", $array) . "')
+      ";
+      // . implode(" = ",$array_key[$array]) 
+      // . implode("' , '",$array) 
+    }
 
-      $sql="select sum(`$col`) from $this->table";
-    
-    return $this->pdo->query($sql)->fetchColumn();
+    return $this->pdo->exec($sql);
   }
 
-  function math($math,$col,...$array){
-    $sql="select $math(`$col`) from $this->table";
-
-    if(!empty($array)){
-        foreach($array[0] as $key => $value){
-            $tmp[]=sprintf("`%s`='%s'",$key,$value);
-        }
-            $sql=$sql . " where " . implode(" && ",$tmp);
-    }
+  function sum($col)
+  {
+    /***/
+    $sql = "SELECT sum(`$col`) FROM $this->table ";
     return $this->pdo->query($sql)->fetchColumn();
+  }
 }
 
-}
-$Admin=new DB('admin');
-$Total=new DB('total');
-$Text=new DB('text');
-$Que=new DB('que');
-$Vote=new DB('vote');
-// 如果找不到今天，存入今天total
+
+$Total = new DB('total');
+// $Total->new DB('total');
+$User = new DB('user');
+$Text = new DB('text');
+$Vote = new DB('vote');
+$Good = new DB('good');
+
 if (!$Total->count(['date' => date("Y-m-d")])) {
   $Total->save(['date' => date("Y-m-d"), 'total' => 0]);
 }
 
-
-//如果沒有SESSION，找到今天的日期，將total+1存回去，建立session
-if(!isset($_SESSION['total'])){
-  $todayTotal=$Total->find(['date'=>date("Y-m-d")]);
-  $todayTotal['total']++;
-  $Total->save($todayTotal);
-  $_SESSION['total']=1;
+if (!isset($_SESSION['total'])) {
+  $today = $Total->find(['date' => date("Y-m-d")]);
+  $today['total']++;
+  $Total->save($today);
+  $_SESSION['total'] = 1;
 }
 
-function to ($url){
-  header("location:".$url) ;
+function to($url)
+{
+  header("location:" . $url);
 }
